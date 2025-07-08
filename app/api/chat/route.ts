@@ -13,9 +13,15 @@ export async function POST(request: NextRequest) {
     }
 
     // n8n webhook configuration
-    const webhookUrl = "http://localhost:5678/webhook/invoke-agent";
-    const bearerToken =
-      "Oa5O43VdEhLDfRL1AQE48fqovvZZUkkbLLFamucWJAhXK0UXrVVzT2sowuqamz00";
+    // const webhookUrl = "http://localhost:5678/webhook/invoke-agent";
+    // const webhookUrl = "http://localhost:5678/webhook/invoke-agent-optimized"; //optimized
+    // const webhookUrl =
+    //   "https://78tvsmnn-5678.use2.devtunnels.ms/webhook/invoke-agent-optimized"; //tunnel
+    // const bearerToken =
+    //   "Oa5O43VdEhLDfRL1AQE48fqovvZZUkkbLLFamucWJAhXK0UXrVVzT2sowuqamz00";
+    //env
+    const webhookUrl = process.env.N8N_WEBHOOK_URL!;
+    const bearerToken = process.env.N8N_BEARER_TOKEN!;
 
     console.log("🚀 Sending to n8n:", { sessionId, chatInput, metadata });
 

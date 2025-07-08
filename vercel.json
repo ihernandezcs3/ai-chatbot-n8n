@@ -1,7 +1,4 @@
 {
-  "analytics": {
-    "enabled": true
-  },
   "functions": {
     "app/api/chat/route.ts": {
       "maxDuration": 30

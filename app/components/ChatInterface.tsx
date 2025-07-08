@@ -6,6 +6,7 @@ import DynamicComponentRenderer from "./DynamicComponentRenderer";
 import MarkdownRenderer from "./MarkdownRenderer";
 import { SacAgentResponse, ComponentData } from "../../types/AgentResponse";
 import { trackChatEvent } from "./AnalyticsProvider";
+import { useParentData } from "./ParentDataContext";
 
 interface Message {
   id: string;
@@ -25,6 +26,7 @@ export default function ChatInterface() {
     () => `session_${Math.random().toString(36).substr(2, 9)}`
   );
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const { parentData, isDataReceived, sendMessageToParent } = useParentData();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -40,6 +42,19 @@ export default function ChatInterface() {
       sessionId: sessionId,
     });
   }, [sessionId]);
+
+  // Notificar al padre cuando se inicia la sesión
+  useEffect(() => {
+    if (isDataReceived && parentData) {
+      sendMessageToParent({
+        type: "SESSION_STARTED",
+        data: {
+          sessionId,
+          parentData,
+        },
+      });
+    }
+  }, [isDataReceived, parentData, sessionId, sendMessageToParent]);
 
   // Function to detect if content contains Markdown
   const containsMarkdown = (content: string): boolean => {
@@ -84,10 +99,10 @@ export default function ChatInterface() {
     try {
       // Metadata que se enviará con cada mensaje
       const metadata = {
-        CliCod: 20115,
-        PrdCod: 4,
-        Email: "ihernandez@comercializadora-s3.com",
-        userName: "Isaí hernandez TEST",
+        CliCod: parentData?.CliCod || 20115,
+        PrdCod: parentData?.PrdCod || 4,
+        Email: parentData?.Email || "ihernandez@comercializadora-s3.com",
+        userName: parentData?.userName || "Usuario",
         timestamp: new Date().toISOString(),
         sessionId: sessionId,
       };
@@ -143,6 +158,20 @@ export default function ChatInterface() {
             : "component",
         sessionId: sessionId,
       });
+
+      // Notificar al padre sobre la respuesta recibida
+      sendMessageToParent({
+        type: "RESPONSE_RECEIVED",
+        data: {
+          sessionId,
+          hasComponents,
+          isMarkdown,
+          responseLength:
+            typeof messageContent === "string"
+              ? messageContent.length
+              : "component",
+        },
+      });
     } catch (error) {
       console.error("Error sending message:", error);
 
@@ -150,6 +179,15 @@ export default function ChatInterface() {
       trackChatEvent("chat_error", {
         error: error instanceof Error ? error.message : "Unknown error",
         sessionId: sessionId,
+      });
+
+      // Notificar al padre sobre el error
+      sendMessageToParent({
+        type: "ERROR",
+        data: {
+          sessionId,
+          error: error instanceof Error ? error.message : "Unknown error",
+        },
       });
 
       const errorMessage: Message = {
@@ -234,7 +272,21 @@ export default function ChatInterface() {
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-3 sm:p-6 space-y-3 sm:space-y-4">
-        {messages.length === 0 && (
+        {!isDataReceived && (
+          <div className="text-center text-gray-500 mt-20">
+            <img
+              src="/logo_cs3.png"
+              alt="Logo CS3"
+              className="w-12 h-12 mx-auto mb-4 opacity-70"
+            />
+            <p className="text-lg">Esperando datos de la aplicación padre...</p>
+            <p className="text-sm mt-2">
+              El chat se activará cuando se reciban los datos necesarios
+            </p>
+          </div>
+        )}
+
+        {isDataReceived && messages.length === 0 && (
           <div className="text-center text-gray-500 mt-20">
             <img
               src="/logo_cs3.png"
@@ -245,6 +297,13 @@ export default function ChatInterface() {
               Inicia una conversación con el asistente IA
             </p>
             <p className="text-sm mt-2">¡Pregúntame lo que quieras!</p>
+            {parentData && (
+              <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+                <p className="text-xs text-blue-600">
+                  Conectado como: {parentData.userName || parentData.Email}
+                </p>
+              </div>
+            )}
           </div>
         )}
 
@@ -340,8 +399,12 @@ export default function ChatInterface() {
               value={inputValue}
               onChange={handleTextareaChange}
               onKeyDown={handleKeyDown}
-              placeholder="Escribe tu mensaje... (Shift + Enter para nueva línea)"
-              disabled={isLoading}
+              placeholder={
+                isDataReceived
+                  ? "Escribe tu mensaje... (Shift + Enter para nueva línea)"
+                  : "Esperando datos de la aplicación padre..."
+              }
+              disabled={isLoading || !isDataReceived}
               rows={1}
               className="flex-1 bg-transparent border-none outline-none resize-none text-gray-700 placeholder-gray-500 text-sm sm:text-base leading-relaxed min-h-[20px] max-h-32 overflow-y-auto disabled:cursor-not-allowed"
               style={{
@@ -351,7 +414,7 @@ export default function ChatInterface() {
             />
             <button
               type="submit"
-              disabled={isLoading || !inputValue.trim()}
+              disabled={isLoading || !inputValue.trim() || !isDataReceived}
               className="flex-shrink-0 p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all duration-200 hover:scale-105 active:scale-95"
             >
               <Send className="w-3.5 h-3.5 sm:w-4 sm:h-4" />

@@ -65,3 +65,30 @@ export interface ComponentData {
   content?: string;
   children?: ComponentData[];
 }
+
+/* ------------------------------
+ *  Tipos para comunicación con postMessage
+ * -----------------------------*/
+
+/** Datos que se reciben desde la aplicación padre */
+export interface ParentAppData {
+  CliCod: number;
+  PrdCod: number;
+  Email: string;
+  userName?: string;
+}
+
+/** Tipos de mensajes que se pueden recibir */
+export type ParentMessageType = "INIT_DATA" | "UPDATE_DATA" | "RESET_SESSION";
+
+/** Estructura del mensaje recibido desde el padre */
+export interface ParentMessage {
+  type: ParentMessageType;
+  data?: ParentAppData;
+}
+
+/** Estructura del mensaje enviado al padre */
+export interface ChildMessage {
+  type: "SESSION_STARTED" | "MESSAGE_SENT" | "RESPONSE_RECEIVED" | "ERROR";
+  data?: any;
+}

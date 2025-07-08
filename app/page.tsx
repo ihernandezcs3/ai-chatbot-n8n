@@ -1,4 +1,5 @@
 import dynamic from "next/dynamic";
+import { ParentDataProvider } from "./components/ParentDataContext";
 
 const ChatInterface = dynamic(() => import("./components/ChatInterface"), {
   ssr: false,
@@ -7,7 +8,9 @@ const ChatInterface = dynamic(() => import("./components/ChatInterface"), {
 export default function Home() {
   return (
     <div className="min-h-screen bg-gray-50">
-      <ChatInterface />
+      <ParentDataProvider>
+        <ChatInterface />
+      </ParentDataProvider>
     </div>
   );
 }

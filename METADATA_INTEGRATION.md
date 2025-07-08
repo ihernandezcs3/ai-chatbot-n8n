@@ -15,7 +15,7 @@ La metadata es información adicional que se envía junto con cada mensaje del c
 ## 📋 Ejemplos de Implementación
 
 ### 1. **Demo Completo con Formulario**
-- **Archivo:** `public/n8n-chat-widget-with-metadata.html`
+- **Archivo:** `public/n8n-chat-widget-simple-metadata.html`
 - **Características:** Formulario interactivo para configurar metadata
 - **Uso:** Perfecto para testing y demostraciones
 
@@ -335,6 +335,6 @@ useEffect(() => {
 
 ## 🔗 Enlaces Útiles
 
-- [Demo con Formulario](../public/n8n-chat-widget-with-metadata.html)
+- [Implementación Simple](../public/n8n-chat-widget-simple-metadata.html)
 - [Implementación Simple](../public/n8n-chat-widget-simple-metadata.html)
 - [Documentación de n8n Chat](https://www.npmjs.com/package/@n8n/chat) 

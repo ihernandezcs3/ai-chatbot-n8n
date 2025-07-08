@@ -5,6 +5,7 @@ import { Send, User } from "lucide-react";
 import DynamicComponentRenderer from "./DynamicComponentRenderer";
 import MarkdownRenderer from "./MarkdownRenderer";
 import { SacAgentResponse, ComponentData } from "../../types/AgentResponse";
+import { trackChatEvent } from "./AnalyticsProvider";
 
 interface Message {
   id: string;
@@ -33,6 +34,13 @@ export default function ChatInterface() {
     scrollToBottom();
   }, [messages]);
 
+  // Track session start
+  useEffect(() => {
+    trackChatEvent("chat_session_started", {
+      sessionId: sessionId,
+    });
+  }, [sessionId]);
+
   // Function to detect if content contains Markdown
   const containsMarkdown = (content: string): boolean => {
     const markdownPatterns = [
@@ -55,6 +63,12 @@ export default function ChatInterface() {
 
   const sendMessage = async (content: string) => {
     if (!content.trim()) return;
+
+    // Track message sent event
+    trackChatEvent("chat_message_sent", {
+      messageLength: content.trim().length,
+      sessionId: sessionId,
+    });
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -118,8 +132,26 @@ export default function ChatInterface() {
       };
 
       setMessages((prev) => [...prev, botMessage]);
+
+      // Track successful response
+      trackChatEvent("chat_response_received", {
+        hasComponents: hasComponents,
+        isMarkdown: isMarkdown,
+        responseLength:
+          typeof messageContent === "string"
+            ? messageContent.length
+            : "component",
+        sessionId: sessionId,
+      });
     } catch (error) {
       console.error("Error sending message:", error);
+
+      // Track error event
+      trackChatEvent("chat_error", {
+        error: error instanceof Error ? error.message : "Unknown error",
+        sessionId: sessionId,
+      });
+
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         content: "Lo siento, encontré un error. Por favor intenta de nuevo.",

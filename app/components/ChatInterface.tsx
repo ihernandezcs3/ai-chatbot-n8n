@@ -279,7 +279,7 @@ export default function ChatInterface() {
               alt="Logo CS3"
               className="w-12 h-12 mx-auto mb-4 opacity-70"
             />
-            <p className="text-lg">Esperando datos de la aplicación padre...</p>
+            <p className="text-lg">Esperando datos...</p>
             <p className="text-sm mt-2">
               El chat se activará cuando se reciban los datos necesarios
             </p>
@@ -402,7 +402,7 @@ export default function ChatInterface() {
               placeholder={
                 isDataReceived
                   ? "Escribe tu mensaje... (Shift + Enter para nueva línea)"
-                  : "Esperando datos de la aplicación padre..."
+                  : "Esperando datos..."
               }
               disabled={isLoading || !isDataReceived}
               rows={1}

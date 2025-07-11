@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Documentation Drawer Demo</title>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <style>
+      body {
+        margin: 0;
+        padding: 20px;
+        font-family: Arial, sans-serif;
+        background-color: #f5f5f5;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: white;
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      h1 {
+        color: #333;
+        margin-bottom: 20px;
+      }
+
+      p {
+        color: #666;
+        line-height: 1.6;
+        margin-bottom: 15px;
+      }
+
+      .demo-section {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 6px;
+        margin: 20px 0;
+        border-left: 4px solid #007bff;
+      }
+
+      .demo-section h3 {
+        margin-top: 0;
+        color: #007bff;
+      }
+
+      .button-demo {
+        background: #007bff;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+        margin: 5px;
+      }
+
+      .button-demo:hover {
+        background: #0056b3;
+      }
+
+      /* Documentation Drawer Button Styles */
+      .doc-toggle-button {
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        width: 50px;
+        height: 50px;
+        background: #007bff;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        cursor: pointer;
+        z-index: 1001;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        transition: all 0.3s ease;
+      }
+
+      .doc-toggle-button:hover {
+        background: #0056b3;
+        transform: scale(1.05);
+      }
+
+      .doc-toggle-button:active {
+        transform: scale(0.95);
+      }
+
+      /* Iframe Styles */
+      .doc-iframe {
+        transition: all 0.3s ease;
+        border: none;
+      }
+
+      /* Responsive adjustments */
+      @media (max-width: 768px) {
+        .doc-toggle-button {
+          top: 10px;
+          left: 10px;
+          width: 45px;
+          height: 45px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Documentation Drawer Demo</h1>
+
+      <p>
+        Esta es una página de demostración para el sistema de documentación con
+        drawer. El botón flotante en la esquina superior derecha permite
+        abrir/cerrar el panel de documentación.
+      </p>
+
+      <div class="demo-section">
+        <h3>Funcionalidades disponibles:</h3>
+        <ul>
+          <li>
+            <strong>Botón flotante:</strong> Click en el botón azul para
+            abrir/cerrar el drawer
+          </li>
+          <li>
+            <strong>Tecla F1:</strong> Presiona F1 para alternar el drawer
+          </li>
+          <li>
+            <strong>Comunicación con iframe:</strong> El sistema envía
+            automáticamente el token y configuración al iframe
+          </li>
+          <li>
+            <strong>Responsive:</strong> El drawer se adapta a diferentes
+            tamaños de pantalla
+          </li>
+        </ul>
+      </div>
+
+      <div class="demo-section">
+        <h3>Controles de demostración:</h3>
+        <button class="button-demo" onclick="window.toggleDrawer()">
+          Abrir/Cerrar Drawer
+        </button>
+      </div>
+
+      <div class="demo-section">
+        <h3>Información del sistema:</h3>
+        <p>
+          <strong>URL del iframe:</strong>
+          http://localhost:3000/
+        </p>
+        <p><strong>Token:</strong> 1bca95bb-64c8-4724-90ff-17065efac630</p>
+        <p>
+          <strong>Collection ID:</strong> 1954a09c-0ad3-4a07-ad77-53e380e0d6a5
+        </p>
+        <p><strong>Ancho del drawer:</strong> 600px</p>
+        <p>
+          <strong>Tecla de acceso rápido:</strong>
+          <span id="current-function-key">F1</span>
+        </p>
+        <div style="margin-top: 10px">
+          <input
+            type="text"
+            id="function-key-input"
+            placeholder="Ej: F2, F3, etc."
+            style="padding: 5px; margin-right: 10px"
+          />
+          <button class="button-demo" onclick="updateFunctionKey()">
+            Cambiar Tecla
+          </button>
+        </div>
+      </div>
+
+      <div class="demo-section">
+        <h3>Estado del drawer:</h3>
+        <p id="drawer-status">Cerrado</p>
+        <p id="iframe-status">Esperando carga...</p>
+      </div>
+    </div>
+
+    <script>
+      $(document).ready(function () {
+        // Constants
+        const SRC = "http://localhost:3000/";
+        const TOKEN = "1bca95bb-64c8-4724-90ff-17065efac630";
+        const collectionId = "1954a09c-0ad3-4a07-ad77-53e380e0d6a5";
+        const iframeWidth = 600;
+        let originsSRC = ["http://localhost:3000"];
+        let functionKey = "F1"; // Tecla de acceso rápido configurable
+
+        // State
+        window.isDrawerOpen = false;
+        let isExpanded = false;
+
+        // Create and append toggle button
+        const $toggleButton = $("<button>", {
+          class: "doc-toggle-button",
+          "aria-label": "Toggle Documentation Drawer",
+          html: `
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"></path>
+                        <path d="M8 7h6"></path>
+                        <path d="M8 11h8"></path>
+                        <path d="M8 15h6"></path>
+                    </svg>
+                `,
+        }).appendTo("body");
+
+        // Create and append iframe with initial hidden state
+        const $iframe = $("<iframe>", {
+          class: "doc-iframe",
+          title: "Documentation",
+          src: SRC, // Set initial src
+          css: {
+            width: "0",
+            height: "100%",
+            position: "fixed",
+            top: "0",
+            right: "0",
+            opacity: "0",
+            visibility: "hidden",
+            "z-index": "1000",
+          },
+        }).appendTo("body");
+
+        // Make toggleDrawer global
+        window.toggleDrawer = function () {
+          window.isDrawerOpen = !window.isDrawerOpen;
+          updateIframeStyle();
+          updateStatusDisplay();
+
+          // Asegurarse de que el iframe esté cargado antes de enviar mensajes
+          if ($iframe[0].contentWindow) {
+            try {
+              sendMessageToIframe("toggleDrawer", window.isDrawerOpen);
+              sendMessageToIframe("token", TOKEN);
+              sendMessageToIframe("cliCod", "CLI001");
+              sendMessageToIframe("prdCod", "PRD001");
+              sendMessageToIframe(
+                "email",
+                "ihernandez@comercializadora-s3.com"
+              );
+              sendMessageToIframe("userName", "isaí Hernandez");
+              sendMessageToIframe("iframeWidth", iframeWidth);
+              sendMessageToIframe("collectionId", collectionId);
+              sendMessageToIframe("functionKey", functionKey);
+            } catch (error) {
+              console.error("Error sending message to iframe:", error);
+            }
+          }
+        };
+
+        function updateIframeStyle() {
+          $iframe.css({
+            width: window.isDrawerOpen
+              ? isExpanded
+                ? "100%"
+                : `${iframeWidth}px`
+              : "0",
+            opacity: window.isDrawerOpen ? 1 : 0,
+            visibility: window.isDrawerOpen ? "visible" : "hidden",
+          });
+        }
+
+        function updateStatusDisplay() {
+          $("#drawer-status").text(window.isDrawerOpen ? "Abierto" : "Cerrado");
+        }
+
+        function sendMessageToIframe(type, value) {
+          if (!$iframe[0].contentWindow) {
+            console.warn("Iframe contentWindow not available");
+            return;
+          }
+
+          const message = {
+            type,
+            [type === "toggleDrawer" ? "isOpen" : type]: value,
+            width: type === "iframeWidth" ? value : undefined,
+          };
+
+          try {
+            console.log("Sending message to iframe:", message);
+            $iframe[0].contentWindow.postMessage(message, SRC);
+          } catch (error) {
+            console.error("Error in sendMessageToIframe:", error);
+          }
+        }
+
+        // Event Handlers
+        function handleMessageEvent(event) {
+          // Verificar el origen del mensaje (sin barra final)
+          const allowedOrigins = [
+            "http://localhost:3000",
+            "http://127.0.0.1:5501",
+          ];
+          if (!allowedOrigins.includes(event.origin)) {
+            console.warn(
+              "Message received from unauthorized origin:",
+              event.origin
+            );
+            return;
+          }
+
+          if (!event.data) {
+            console.warn("Empty message received");
+            return;
+          }
+
+          try {
+            const { type, isOpen } = event.data;
+            // console.log(type);
+            if (type === "drawerToggle" || type === "toggleDrawer") {
+              window.isDrawerOpen = isOpen; // Usa el valor recibido
+              updateIframeStyle();
+              updateStatusDisplay();
+            } else if (type === "expandToggle") {
+              isExpanded = isOpen;
+              updateIframeStyle();
+            }
+          } catch (error) {
+            console.error("Error processing message:", error);
+          }
+        }
+
+        // Usar addEventListener en lugar de jQuery para mayor compatibilidad
+        window.addEventListener("message", handleMessageEvent, false);
+
+        // Add iframe load error handler
+        $iframe.on("error", function (error) {
+          console.error("Error loading iframe:", error);
+          $("#iframe-status").text("Error al cargar el iframe");
+        });
+
+        // Add iframe load event
+        $iframe.on("load", function () {
+          console.log("Iframe loaded successfully");
+          $("#iframe-status").text("Iframe cargado correctamente");
+          sendMessageToIframe("iframeWidth", iframeWidth);
+          sendMessageToIframe("functionKey", functionKey);
+        });
+
+        // Keyboard shortcut handler - usar la tecla configurable
+        $(document).on("keydown", function (event) {
+          if (event.key === functionKey) {
+            event.preventDefault();
+            window.toggleDrawer();
+          }
+        });
+
+        // Toggle button click handler
+        $toggleButton.on("click", (e) => {
+          e.preventDefault();
+          window.toggleDrawer();
+        });
+
+        // Función para actualizar la tecla de acceso rápido
+        window.updateFunctionKey = function () {
+          const newKey = $("#function-key-input").val().trim();
+          if (newKey && newKey.length > 0) {
+            functionKey = newKey;
+            $("#current-function-key").text(functionKey);
+            $("#function-key-input").val("");
+
+            // Enviar al iframe si está cargado
+            if ($iframe[0].contentWindow) {
+              sendMessageToIframe("functionKey", functionKey);
+            }
+
+            console.log("Tecla de acceso rápido actualizada a:", functionKey);
+          } else {
+            alert("Por favor ingresa una tecla válida (ej: F2, F3, etc.)");
+          }
+        };
+      });
+    </script>
+  </body>
+</html>

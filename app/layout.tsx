@@ -1,8 +1,15 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+import { Inter } from "next/font/google";
 import { Analytics } from "@vercel/analytics/react";
 import { AnalyticsProvider } from "./components/AnalyticsProvider";
 import "./globals.css";
+
+const inter = Inter({
+  subsets: ["latin"],
+  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
+  variable: "--font-inter",
+});
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -27,11 +34,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      <body className={`${inter.variable} font-inter antialiased`}>
         <AnalyticsProvider>{children}</AnalyticsProvider>
-        <Analytics />
+        {process.env.NODE_ENV === "production" && <Analytics />}
       </body>
     </html>
   );

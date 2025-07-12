@@ -1,5 +1,6 @@
 "use client";
 
+import { MicIcon } from "@/icons";
 import { useState, useRef, useCallback } from "react";
 
 interface ChatInputProps {
@@ -100,12 +101,12 @@ export default function ChatInput({
 
             <button
               type="button"
-              className="p-1.5 text-gray-400 hover:text-gray-600 transition-colors duration-200"
+              className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors duration-200"
               onClick={() => {
                 // Add voice functionality
               }}
             >
-              <svg
+              {/* <svg
                 width="20"
                 height="20"
                 viewBox="0 0 24 24"
@@ -117,7 +118,8 @@ export default function ChatInput({
                 <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
                 <line x1="12" y1="19" x2="12" y2="23" />
                 <line x1="8" y1="23" x2="16" y2="23" />
-              </svg>
+              </svg> */}
+              <MicIcon className="w-5 h-5" />
             </button>
           </div>
         </div>

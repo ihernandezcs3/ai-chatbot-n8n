@@ -1,0 +1,81 @@
+{
+  "$id": "https://ai-chatbot-n8n.com/quickanswer.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "QuickAnswer Response",
+  "description": "Schema for generating quick answer suggestions in chat interface",
+  "type": "object",
+  "properties": {
+    "quickAnswers": {
+      "type": "array",
+      "description": "Array of quick answer suggestions",
+      "minItems": 1,
+      "maxItems": 8,
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier for the quick answer",
+            "pattern": "^[a-zA-Z0-9_-]+$",
+            "minLength": 3,
+            "maxLength": 50
+          },
+          "text": {
+            "type": "string",
+            "description": "Text that will be displayed to the user",
+            "minLength": 1,
+            "maxLength": 50
+          },
+          "type": {
+            "type": "string",
+            "description": "Type of quick answer that determines styling and behavior",
+            "enum": [
+              "question",
+              "answer",
+              "confirmation",
+              "negation",
+              "suggestion",
+              "action",
+              "help"
+            ]
+          },
+          "category": {
+            "type": "string",
+            "description": "Optional category for grouping quick answers",
+            "maxLength": 30
+          },
+          "priority": {
+            "type": "integer",
+            "description": "Optional priority for ordering (lower numbers = higher priority)",
+            "minimum": 1,
+            "maximum": 10
+          },
+          "metadata": {
+            "type": "object",
+            "description": "Optional additional data for the quick answer",
+            "additionalProperties": true
+          }
+        },
+        "required": ["id", "text", "type"],
+        "additionalProperties": false
+      }
+    },
+    "sessionId": {
+      "type": "string",
+      "description": "Optional session identifier",
+      "maxLength": 100
+    },
+    "userId": {
+      "type": "string",
+      "description": "Optional user identifier",
+      "maxLength": 100
+    },
+    "timestamp": {
+      "type": "string",
+      "description": "Optional timestamp in ISO format",
+      "format": "date-time"
+    }
+  },
+  "required": ["quickAnswers"],
+  "additionalProperties": false
+}

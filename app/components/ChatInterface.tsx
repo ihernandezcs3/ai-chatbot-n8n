@@ -5,6 +5,7 @@ import { useChat } from "@/app/hooks/useChat";
 import MessagesList from "./ui/MessagesList";
 import ChatInput from "./ui/ChatInput";
 import Suggestions from "./Suggestions";
+import { useSuggestions } from "@/app/hooks/useSuggestions";
 
 export default function ChatInterface({
   userData,
@@ -13,8 +14,22 @@ export default function ChatInterface({
 }: ChatInterfaceProps) {
   const { messages, sendMessage, isLoading, sessionId } = useChat(userData);
 
+  // Hook único para las sugerencias en esta sesión
+  const {
+    suggestions,
+    isConnected: suggestionsConnected,
+    error: suggestionsError,
+    clearSuggestions,
+  } = useSuggestions(sessionId);
+
   const handleSuggestionSelect = (text: string) => {
+    clearSuggestions();
     sendMessage(text);
+  };
+
+  const handleSendMessage = (content: string) => {
+    clearSuggestions();
+    sendMessage(content);
   };
 
   // Check if there are AI responses (messages from assistant)
@@ -22,15 +37,22 @@ export default function ChatInterface({
 
   return (
     <div className="flex flex-col h-full w-full">
-      <MessagesList messages={messages} isLoading={isLoading} />
-      {hasAIResponses && (
-        <Suggestions
-          onSuggestionSelect={handleSuggestionSelect}
-          sessionId={sessionId}
-        />
-      )}
+      <MessagesList
+        messages={messages}
+        isLoading={isLoading}
+        extraDeps={[suggestions]}
+      >
+        {hasAIResponses && suggestions.length > 0 && (
+          <Suggestions
+            suggestions={suggestions}
+            onSuggestionSelect={handleSuggestionSelect}
+            isConnected={suggestionsConnected}
+            error={suggestionsError}
+          />
+        )}
+      </MessagesList>
       <ChatInput
-        onSendMessage={sendMessage}
+        onSendMessage={handleSendMessage}
         isLoading={isLoading}
         isDataReceived={isDataReceived}
       />

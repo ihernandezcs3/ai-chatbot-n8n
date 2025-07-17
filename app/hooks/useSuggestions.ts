@@ -97,6 +97,11 @@ export const useSuggestions = (sessionId?: string) => {
     [suggestions]
   );
 
+  // Limpiar sugerencias manualmente
+  const clearSuggestions = useCallback(() => {
+    setSuggestions([]);
+  }, []);
+
   return {
     suggestions,
     isConnected,
@@ -104,5 +109,6 @@ export const useSuggestions = (sessionId?: string) => {
     sendSuggestion,
     getSuggestionsByType,
     getSuggestionsByCategory,
+    clearSuggestions,
   };
 };

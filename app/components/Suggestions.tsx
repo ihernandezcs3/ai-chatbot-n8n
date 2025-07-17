@@ -1,18 +1,19 @@
 import React from "react";
-import { useSuggestions } from "@/app/hooks/useSuggestions";
 import { Suggestion as SuggestionType } from "@/types/Suggestion";
 
 interface SuggestionsProps {
+  suggestions: SuggestionType[];
+  isConnected: boolean;
+  error: string | null;
   onSuggestionSelect: (text: string) => void;
-  sessionId: string;
 }
 
 const Suggestions: React.FC<SuggestionsProps> = ({
+  suggestions,
+  isConnected,
+  error,
   onSuggestionSelect,
-  sessionId,
 }) => {
-  const { suggestions, isConnected, error } = useSuggestions(sessionId);
-
   const handleSuggestionClick = (suggestion: SuggestionType) => {
     onSuggestionSelect(suggestion.text);
   };
@@ -28,36 +29,21 @@ const Suggestions: React.FC<SuggestionsProps> = ({
   }
 
   if (!isConnected) {
-    return (
-      <div className="p-4 text-center">
-        <div className="text-gray-500 text-sm">
-          Connecting to suggestions...
-        </div>
-      </div>
-    );
+    return null;
   }
 
   if (suggestions.length === 0) {
-    return (
-      <div className="p-4 text-center">
-        <div className="text-gray-500 text-sm">No suggestions available</div>
-      </div>
-    );
+    return null;
   }
 
   return (
-    <div className="p-4 border-t border-gray-200 bg-gray-50">
-      <div className="mb-2">
-        <h3 className="text-sm font-medium text-gray-700 mb-2">
-          Suggested Responses
-        </h3>
-      </div>
-      <div className="flex flex-wrap gap-2">
+    <div className="p-4">
+      <div className="flex flex-col gap-[9px]">
         {suggestions.map((suggestion) => (
           <button
             key={suggestion.id}
             onClick={() => handleSuggestionClick(suggestion)}
-            className={`px-3 py-1.5 text-xs rounded-full border transition-colors ${
+            className={`w-fit px-3 py-1.5 text-xs rounded-lg border transition-colors ${
               suggestion.type === "question"
                 ? "bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100"
                 : suggestion.type === "answer"

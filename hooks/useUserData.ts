@@ -29,7 +29,7 @@ export const useUserData = ({ onDataReceived }: UseUserDataProps = {}) => {
     const handleParentMessage = (event: MessageEvent) => {
       if (!event.data || !event.data.type) return;
 
-      console.log("Mensaje recibido del padre:", event.data);
+      // console.log("Mensaje recibido del padre:", event.data);
 
       switch (event.data.type) {
         case "cliCod":
@@ -78,7 +78,7 @@ export const useUserData = ({ onDataReceived }: UseUserDataProps = {}) => {
           break;
 
         default:
-          console.log("Tipo de mensaje no manejado:", event.data.type);
+        // console.log("Tipo de mensaje no manejado:", event.data.type);
       }
 
       // Marcar como recibido si tenemos los datos básicos

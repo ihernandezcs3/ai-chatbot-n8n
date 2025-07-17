@@ -280,7 +280,7 @@
           };
 
           try {
-            console.log("Sending message to iframe:", message);
+            // console.log("Sending message to iframe:", message);
             $iframe[0].contentWindow.postMessage(message, SRC);
           } catch (error) {
             console.error("Error in sendMessageToIframe:", error);

@@ -30,7 +30,7 @@ export const useDocumentationDrawerControls = ({
 
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
-      console.log(event.data);
+      // console.log(event.data);
       // Solo actualizar estado, no enviar mensajes al padre
       if (event.data && event.data.type === "toggleDrawer") {
         setIsOpen(event.data.isOpen);

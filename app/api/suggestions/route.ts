@@ -1,48 +1,48 @@
 import { NextRequest, NextResponse } from "next/server";
-import { QuickAnswerPayload, QuickAnswerResponse } from "@/types/QuickAnswer";
+import { SuggestionPayload, SuggestionResponse } from "@/types/Suggestion";
 
 // Store for connected clients
 const clients = new Set<ReadableStreamDefaultController>();
 
-// Store for the latest quick answers
-let latestQuickAnswers: QuickAnswerPayload | null = null;
+// Store for the latest suggestions
+let latestSuggestions: SuggestionPayload | null = null;
 
 export async function POST(request: NextRequest) {
   try {
-    const body: QuickAnswerPayload = await request.json();
-    console.log("🔄 QuickAnswer received:", body);
+    const body: SuggestionPayload = await request.json();
+    console.log("🔄 Suggestions received:", body);
     // Validate the payload
-    if (!body.quickAnswers || !Array.isArray(body.quickAnswers)) {
+    if (!body.suggestions || !Array.isArray(body.suggestions)) {
       return NextResponse.json(
         {
           success: false,
-          message: "Invalid payload: quickAnswers array is required",
+          message: "Invalid payload: suggestions array is required",
         },
         { status: 400 }
       );
     }
 
-    // Validate each quick answer
-    for (const qa of body.quickAnswers) {
-      if (!qa.id || !qa.text || !qa.type) {
+    // Validate each suggestion
+    for (const suggestion of body.suggestions) {
+      if (!suggestion.id || !suggestion.text || !suggestion.type) {
         return NextResponse.json(
           {
             success: false,
-            message: "Invalid quick answer: id, text, and type are required",
+            message: "Invalid suggestion: id, text, and type are required",
           },
           { status: 400 }
         );
       }
     }
 
-    // Store the latest quick answers
-    latestQuickAnswers = {
+    // Store the latest suggestions
+    latestSuggestions = {
       ...body,
       timestamp: new Date().toISOString(),
     };
 
     // Broadcast to all connected clients
-    const message = `data: ${JSON.stringify(latestQuickAnswers)}\n\n`;
+    const message = `data: ${JSON.stringify(latestSuggestions)}\n\n`;
     clients.forEach((client) => {
       try {
         client.enqueue(new TextEncoder().encode(message));
@@ -52,15 +52,15 @@ export async function POST(request: NextRequest) {
       }
     });
 
-    const response: QuickAnswerResponse = {
+    const response: SuggestionResponse = {
       success: true,
-      message: "Quick answers received and broadcasted successfully",
-      receivedCount: body.quickAnswers.length,
+      message: "Suggestions received and broadcasted successfully",
+      receivedCount: body.suggestions.length,
     };
 
     return NextResponse.json(response);
   } catch (error) {
-    console.error("Error processing quick answer request:", error);
+    console.error("Error processing suggestions request:", error);
     return NextResponse.json(
       { success: false, message: "Internal server error" },
       { status: 500 }
@@ -76,9 +76,9 @@ export async function GET() {
       // Add this client to the set
       clients.add(controller);
 
-      // Send the latest quick answers immediately if available
-      if (latestQuickAnswers) {
-        const message = `data: ${JSON.stringify(latestQuickAnswers)}\n\n`;
+      // Send the latest suggestions immediately if available
+      if (latestSuggestions) {
+        const message = `data: ${JSON.stringify(latestSuggestions)}\n\n`;
         controller.enqueue(encoder.encode(message));
       }
 

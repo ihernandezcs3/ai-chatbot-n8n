@@ -117,3 +117,6 @@ export interface TokenInfo {
   isValid: boolean;
   isExpired: boolean;
 }
+
+// Suggestion types
+export * from "./Suggestion";

@@ -1,4 +1,4 @@
-export type QuickAnswerType =
+export type SuggestionType =
   | "question"
   | "answer"
   | "confirmation"
@@ -7,23 +7,23 @@ export type QuickAnswerType =
   | "action"
   | "help";
 
-export interface QuickAnswer {
+export interface Suggestion {
   id: string;
   text: string;
-  type: QuickAnswerType;
+  type: SuggestionType;
   category?: string;
   priority?: number;
   metadata?: Record<string, any>;
 }
 
-export interface QuickAnswerPayload {
-  quickAnswers: QuickAnswer[];
+export interface SuggestionPayload {
+  suggestions: Suggestion[];
   sessionId?: string;
   userId?: string;
   timestamp?: string;
 }
 
-export interface QuickAnswerResponse {
+export interface SuggestionResponse {
   success: boolean;
   message: string;
   receivedCount: number;

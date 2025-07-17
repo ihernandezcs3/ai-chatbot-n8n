@@ -4,7 +4,7 @@ import { ChatInterfaceProps } from "@/types";
 import { useChat } from "@/app/hooks/useChat";
 import MessagesList from "./ui/MessagesList";
 import ChatInput from "./ui/ChatInput";
-import QuickAnswer from "./QuickAnswer";
+import Suggestions from "./Suggestions";
 
 export default function ChatInterface({
   userData,
@@ -13,7 +13,7 @@ export default function ChatInterface({
 }: ChatInterfaceProps) {
   const { messages, sendMessage, isLoading } = useChat(userData);
 
-  const handleQuickAnswerSelect = (text: string) => {
+  const handleSuggestionSelect = (text: string) => {
     sendMessage(text);
   };
 
@@ -24,10 +24,7 @@ export default function ChatInterface({
     <div className="flex flex-col h-full w-full">
       <MessagesList messages={messages} isLoading={isLoading} />
       {hasAIResponses && (
-        <QuickAnswer
-          onQuickAnswerSelect={handleQuickAnswerSelect}
-          className="px-4"
-        />
+        <Suggestions onSuggestionSelect={handleSuggestionSelect} />
       )}
       <ChatInput
         onSendMessage={sendMessage}

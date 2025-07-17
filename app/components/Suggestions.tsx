@@ -19,13 +19,8 @@ const Suggestions: React.FC<SuggestionsProps> = ({
   };
 
   if (error) {
-    return (
-      <div className="p-4 text-center">
-        <div className="text-red-500 text-sm">
-          Error connecting to suggestions: {error}
-        </div>
-      </div>
-    );
+    // Ocultamos la sección hasta que vuelva a conectarse automáticamente
+    return null;
   }
 
   if (!isConnected) {
@@ -37,28 +32,28 @@ const Suggestions: React.FC<SuggestionsProps> = ({
   }
 
   return (
-    <div className="p-4">
+    <div className="px-4">
       <div className="flex flex-col gap-[9px]">
         {suggestions.map((suggestion) => (
           <button
             key={suggestion.id}
             onClick={() => handleSuggestionClick(suggestion)}
-            className={`w-fit px-3 py-1.5 text-xs rounded-lg border transition-colors ${
+            className={`w-fit px-[10px] py-[6px] h-10 font-normal text-base rounded-lg border transition-colors ${
               suggestion.type === "question"
-                ? "bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100"
+                ? "border-[#078BCD] text-[#078BCD] hover:bg-blue-50"
                 : suggestion.type === "answer"
-                ? "bg-green-50 border-green-200 text-green-700 hover:bg-green-100"
+                ? "border-[#00BB89] text-[#00BB89] hover:bg-green-50"
                 : suggestion.type === "confirmation"
-                ? "bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100"
+                ? "border-[#00966E] text-[#00966E] hover:bg-emerald-50"
                 : suggestion.type === "negation"
-                ? "bg-red-50 border-red-200 text-red-700 hover:bg-red-100"
+                ? "border-[#CC3F46] text-[#CC3F46] hover:bg-red-50"
                 : suggestion.type === "suggestion"
-                ? "bg-purple-50 border-purple-200 text-purple-700 hover:bg-purple-100"
+                ? "border-[#323E93] text-[#323E93] hover:bg-purple-50"
                 : suggestion.type === "action"
-                ? "bg-orange-50 border-orange-200 text-orange-700 hover:bg-orange-100"
+                ? "border-[#078BCD] text-[#078BCD] hover:bg-blue-50"
                 : suggestion.type === "help"
-                ? "bg-indigo-50 border-indigo-200 text-indigo-700 hover:bg-indigo-100"
-                : "bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100"
+                ? "border-[#2F3B8A] text-[#2F3B8A] hover:bg-indigo-50"
+                : "border-gray-700 text-gray-700 hover:bg-gray-50"
             }`}
           >
             {suggestion.text}

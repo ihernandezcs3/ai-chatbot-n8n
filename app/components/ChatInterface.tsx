@@ -11,7 +11,7 @@ export default function ChatInterface({
   isDataReceived,
   sendMessageToParent,
 }: ChatInterfaceProps) {
-  const { messages, sendMessage, isLoading } = useChat(userData);
+  const { messages, sendMessage, isLoading, sessionId } = useChat(userData);
 
   const handleSuggestionSelect = (text: string) => {
     sendMessage(text);
@@ -24,7 +24,10 @@ export default function ChatInterface({
     <div className="flex flex-col h-full w-full">
       <MessagesList messages={messages} isLoading={isLoading} />
       {hasAIResponses && (
-        <Suggestions onSuggestionSelect={handleSuggestionSelect} />
+        <Suggestions
+          onSuggestionSelect={handleSuggestionSelect}
+          sessionId={sessionId}
+        />
       )}
       <ChatInput
         onSendMessage={sendMessage}

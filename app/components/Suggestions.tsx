@@ -1,13 +1,17 @@
 import React from "react";
-import { useSuggestions } from "@/hooks/useSuggestions";
+import { useSuggestions } from "@/app/hooks/useSuggestions";
 import { Suggestion as SuggestionType } from "@/types/Suggestion";
 
 interface SuggestionsProps {
   onSuggestionSelect: (text: string) => void;
+  sessionId: string;
 }
 
-const Suggestions: React.FC<SuggestionsProps> = ({ onSuggestionSelect }) => {
-  const { suggestions, isConnected, error } = useSuggestions();
+const Suggestions: React.FC<SuggestionsProps> = ({
+  onSuggestionSelect,
+  sessionId,
+}) => {
+  const { suggestions, isConnected, error } = useSuggestions(sessionId);
 
   const handleSuggestionClick = (suggestion: SuggestionType) => {
     onSuggestionSelect(suggestion.text);

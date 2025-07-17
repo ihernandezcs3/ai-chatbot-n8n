@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { SuggestionPayload, SuggestionResponse } from "@/types/Suggestion";
 
-// Store for connected clients
-const clients = new Set<ReadableStreamDefaultController>();
+// Mapa de sessionId -> Set de controladores conectados para esa sesión
+const clients = new Map<string, Set<ReadableStreamDefaultController>>();
 
-// Store for the latest suggestions
-let latestSuggestions: SuggestionPayload | null = null;
+// Mapa de sessionId -> Últimas sugerencias enviadas para esa sesión
+const latestSuggestions = new Map<string, SuggestionPayload>();
 
 export async function POST(request: NextRequest) {
   try {
@@ -35,22 +35,38 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Store the latest suggestions
-    latestSuggestions = {
+    const { sessionId } = body;
+
+    if (!sessionId) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Invalid payload: sessionId is required",
+        },
+        { status: 400 }
+      );
+    }
+
+    // Store the latest suggestions for this session
+    const suggestionsWithTimestamp = {
       ...body,
       timestamp: new Date().toISOString(),
     };
+    latestSuggestions.set(sessionId, suggestionsWithTimestamp);
 
-    // Broadcast to all connected clients
-    const message = `data: ${JSON.stringify(latestSuggestions)}\n\n`;
-    clients.forEach((client) => {
-      try {
-        client.enqueue(new TextEncoder().encode(message));
-      } catch (error) {
-        // Remove disconnected clients
-        clients.delete(client);
-      }
-    });
+    // Broadcast only to clients connected for this session
+    const message = `data: ${JSON.stringify(suggestionsWithTimestamp)}\n\n`;
+    const sessionClients = clients.get(sessionId);
+    if (sessionClients) {
+      sessionClients.forEach((client) => {
+        try {
+          client.enqueue(new TextEncoder().encode(message));
+        } catch (error) {
+          // Remove disconnected clients that failed
+          sessionClients.delete(client);
+        }
+      });
+    }
 
     const response: SuggestionResponse = {
       success: true,
@@ -68,33 +84,48 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   const encoder = new TextEncoder();
+
+  const sessionId = request.nextUrl.searchParams.get("sessionId");
+
+  if (!sessionId) {
+    return new Response("sessionId query parameter is required", {
+      status: 400,
+    });
+  }
 
   const stream = new ReadableStream({
     start(controller) {
-      // Add this client to the set
-      clients.add(controller);
+      // Añadir este controlador al grupo de la sesión
+      if (!clients.has(sessionId)) {
+        clients.set(sessionId, new Set());
+      }
+      clients.get(sessionId)!.add(controller);
 
-      // Send the latest suggestions immediately if available
-      if (latestSuggestions) {
-        const message = `data: ${JSON.stringify(latestSuggestions)}\n\n`;
+      // Enviar inmediatamente las últimas sugerencias si las hay
+      const last = latestSuggestions.get(sessionId);
+      if (last) {
+        const message = `data: ${JSON.stringify(last)}\n\n`;
         controller.enqueue(encoder.encode(message));
       }
 
-      // Send initial connection message
+      // Mensaje inicial de conexión
       const initMessage = `data: ${JSON.stringify({
         type: "connected",
         timestamp: new Date().toISOString(),
       })}\n\n`;
       controller.enqueue(encoder.encode(initMessage));
-
-      // Handle client disconnect
-      // Note: ReadableStreamDefaultController doesn't have a signal property
-      // The connection will be cleaned up when the stream is closed
     },
     cancel(controller) {
-      clients.delete(controller);
+      const set = clients.get(sessionId);
+      if (set) {
+        set.delete(controller);
+        if (set.size === 0) {
+          clients.delete(sessionId);
+          latestSuggestions.delete(sessionId);
+        }
+      }
     },
   });
 

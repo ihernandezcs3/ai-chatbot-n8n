@@ -18,14 +18,14 @@ const Suggestions: React.FC<SuggestionsProps> = ({
     onSuggestionSelect(suggestion.text);
   };
 
-  if (error) {
-    // Ocultamos la sección hasta que vuelva a conectarse automáticamente
-    return null;
-  }
+  // if (error) {
+  //   // Ocultamos la sección hasta que vuelva a conectarse automáticamente
+  //   return null;
+  // }
 
-  if (!isConnected) {
-    return null;
-  }
+  // if (!isConnected) {
+  //   return null;
+  // }
 
   if (suggestions.length === 0) {
     return null;

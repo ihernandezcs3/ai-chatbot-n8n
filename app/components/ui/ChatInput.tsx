@@ -1,7 +1,7 @@
 "use client";
 
 import { MicIcon } from "@/icons";
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 
 interface ChatInputProps {
   onSendMessage: (message: string) => void;
@@ -16,6 +16,14 @@ export default function ChatInput({
 }: ChatInputProps) {
   const [inputValue, setInputValue] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Auto-focus logic: focus on mount and after the assistant finishes responding
+  useEffect(() => {
+    // Focus only when the input is enabled
+    if (!isLoading && isDataReceived) {
+      textareaRef.current?.focus();
+    }
+  }, [isLoading, isDataReceived]);
 
   const handleSubmit = useCallback(
     (e: React.FormEvent) => {

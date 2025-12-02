@@ -8,12 +8,7 @@ interface SuggestionsProps {
   onSuggestionSelect: (text: string) => void;
 }
 
-const Suggestions: React.FC<SuggestionsProps> = ({
-  suggestions,
-  isConnected,
-  error,
-  onSuggestionSelect,
-}) => {
+const Suggestions: React.FC<SuggestionsProps> = ({ suggestions, isConnected, error, onSuggestionSelect }) => {
   const handleSuggestionClick = (suggestion: SuggestionType) => {
     onSuggestionSelect(suggestion.text);
   };
@@ -37,7 +32,12 @@ const Suggestions: React.FC<SuggestionsProps> = ({
       case "question":
         return (
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
           </svg>
         );
       case "action":
@@ -49,13 +49,23 @@ const Suggestions: React.FC<SuggestionsProps> = ({
       case "suggestion":
         return (
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
+            />
           </svg>
         );
       case "help":
         return (
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+            />
           </svg>
         );
       default:
@@ -65,8 +75,9 @@ const Suggestions: React.FC<SuggestionsProps> = ({
 
   // Función para obtener los estilos según el tipo
   const getButtonStyles = (type: string) => {
-    const baseStyles = "group relative inline-flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium text-sm transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-sm hover:shadow-md";
-    
+    const baseStyles =
+      "group relative inline-flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium text-sm transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-sm hover:shadow-md";
+
     switch (type) {
       case "question":
         return `${baseStyles} bg-gradient-to-r from-blue-50 to-cyan-50 border border-blue-200 text-blue-700 hover:from-blue-100 hover:to-cyan-100 hover:border-blue-300`;
@@ -85,14 +96,8 @@ const Suggestions: React.FC<SuggestionsProps> = ({
     <div className="px-4 py-2">
       <div className="flex flex-wrap gap-2">
         {suggestions.map((suggestion) => (
-          <button
-            key={suggestion.id}
-            onClick={() => handleSuggestionClick(suggestion)}
-            className={getButtonStyles(suggestion.type)}
-          >
-            <span className="transition-transform group-hover:scale-110">
-              {getIcon(suggestion.type)}
-            </span>
+          <button key={suggestion.id} onClick={() => handleSuggestionClick(suggestion)} className={getButtonStyles(suggestion.type)}>
+            <span className="transition-transform group-hover:scale-110">{getIcon(suggestion.type)}</span>
             <span className="leading-tight">{suggestion.text}</span>
             <span className="absolute inset-0 rounded-xl ring-2 ring-transparent group-hover:ring-current opacity-20 transition-opacity"></span>
           </button>

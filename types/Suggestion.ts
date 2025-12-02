@@ -1,8 +1,4 @@
-export type SuggestionType =
-  | "question"
-  | "action"
-  | "suggestion"
-  | "help";
+export type SuggestionType = "question" | "action" | "suggestion" | "help";
 
 export interface Suggestion {
   id: string;

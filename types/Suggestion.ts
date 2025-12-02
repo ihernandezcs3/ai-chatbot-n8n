@@ -1,10 +1,7 @@
 export type SuggestionType =
   | "question"
-  | "answer"
-  | "confirmation"
-  | "negation"
-  | "suggestion"
   | "action"
+  | "suggestion"
   | "help";
 
 export interface Suggestion {

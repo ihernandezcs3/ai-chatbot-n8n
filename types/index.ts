@@ -47,6 +47,8 @@ export interface ChatMetadata {
   FirstName?: string;
   LastName?: string;
   role?: string;
+  // Domain from environment
+  domain?: string;
 }
 
 // Component related types

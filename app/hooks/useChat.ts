@@ -5,7 +5,7 @@ import { AnalyticsService } from "@/app/services/analyticsService";
 import { ConversationService } from "@/app/services/conversationService";
 import { useMessages } from "./useMessages";
 
-export const useChat = (userData: UserData, existingConversationId?: string | null): UseChatReturn => {
+export const useChat = (userData: UserData, existingConversationId?: string | null, onConversationCreated?: () => void): UseChatReturn => {
   const [isLoading, setIsLoading] = useState(false);
   const [sessionId, setSessionId] = useState<string>(() => ChatService.generateSessionId());
   const [conversationId, setConversationId] = useState<string | null>(existingConversationId || null);
@@ -18,7 +18,7 @@ export const useChat = (userData: UserData, existingConversationId?: string | nu
 
   // Load existing conversation if provided
   useEffect(() => {
-    if (existingConversationId && userData.CliCod) {
+    if (existingConversationId && userData.IdUser) {
       loadExistingConversation(existingConversationId);
     } else if (existingConversationId === null && conversationId !== null) {
       // User clicked "New Chat" - reset everything
@@ -82,12 +82,13 @@ export const useChat = (userData: UserData, existingConversationId?: string | nu
       setIsLoading(true);
 
       // Create conversation on first message if not exists
-      if (!conversationId && userData.CliCod) {
+      if (!conversationId && userData.IdUser) {
         try {
           const title = content.trim().substring(0, 100);
-          const conversation = await ConversationService.createConversation(sessionId, userData.CliCod.toString(), title);
+          const conversation = await ConversationService.createConversation(sessionId, userData.IdUser, title);
           setConversationId(conversation.id);
           console.log("✅ Conversation created:", conversation.id);
+          if (onConversationCreated) onConversationCreated();
         } catch (error) {
           console.error("⚠️ Could not create conversation, continuing anyway:", error);
         }

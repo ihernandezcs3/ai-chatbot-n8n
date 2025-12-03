@@ -31,7 +31,8 @@ export default function Home() {
     selectedConversationId,
     handleNewChat,
     handleSelectConversation,
-  } = useConversationHistory(isDataReceived ? userData?.CliCod?.toString() : undefined);
+    refreshConversations,
+  } = useConversationHistory(isDataReceived ? userData?.IdUser : undefined);
 
   const handleSidebarNewChat = () => {
     handleNewChat();
@@ -103,6 +104,7 @@ export default function Home() {
               isDataReceived={isDataReceived}
               sendMessageToParent={sendMessageToParent}
               conversationId={selectedConversationId}
+              onConversationCreated={refreshConversations}
             />
           </div>
         </motion.div>

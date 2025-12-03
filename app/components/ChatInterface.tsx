@@ -7,8 +7,8 @@ import ChatInput from "./ui/ChatInput";
 import Suggestions from "./Suggestions";
 import { useSuggestions } from "@/app/hooks/useSuggestions";
 
-export default function ChatInterface({ userData, isDataReceived, sendMessageToParent, conversationId = null }: ChatInterfaceProps) {
-  const { messages, sendMessage, isLoading, sessionId } = useChat(userData, conversationId);
+export default function ChatInterface({ userData, isDataReceived, sendMessageToParent, conversationId = null, onConversationCreated }: ChatInterfaceProps) {
+  const { messages, sendMessage, isLoading, sessionId } = useChat(userData, conversationId, onConversationCreated);
 
   // Hook único para las sugerencias en esta sesión
   const { suggestions, isConnected: suggestionsConnected, error: suggestionsError, clearSuggestions } = useSuggestions(sessionId);

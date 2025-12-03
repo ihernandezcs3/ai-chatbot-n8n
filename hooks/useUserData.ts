@@ -67,6 +67,7 @@ export const useUserData = ({ onDataReceived }: UseUserDataProps = {}) => {
               ...prev,
               token: token,
               tokenPayload: tokenPayload,
+              IdUser: tokenPayload.IdUser, // Extract IdUser for easier access
             }));
           } else {
             console.error("Error al desencriptar el token");

@@ -32,6 +32,7 @@ export interface UserData {
   iframeWidth?: number;
   // New fields from JWT
   tokenPayload?: JWTPayload;
+  IdUser?: string; // Added for conversation management
 }
 
 export interface ChatMetadata {
@@ -73,6 +74,7 @@ export interface ChatInterfaceProps {
   isDataReceived: boolean;
   sendMessageToParent: (message: any) => void;
   conversationId?: string | null;
+  onConversationCreated?: () => void;
 }
 
 export interface ConversationHistory {

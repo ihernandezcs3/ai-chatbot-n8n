@@ -24,8 +24,14 @@ export default function Home() {
   });
 
   const { userData, isDataReceived, sendMessageToParent } = useUserData();
-  const { conversations, handleNewChat, handleSelectConversation } =
-    useConversationHistory();
+  const {
+    conversations,
+    loading: conversationsLoading,
+    error: conversationsError,
+    selectedConversationId,
+    handleNewChat,
+    handleSelectConversation,
+  } = useConversationHistory(isDataReceived ? userData?.CliCod?.toString() : undefined);
 
   const handleSidebarNewChat = () => {
     handleNewChat();
@@ -43,10 +49,7 @@ export default function Home() {
   return (
     <AnimatePresence mode="wait">
       {showWelcome ? (
-        <WelcomeScreen
-          onStart={() => setShowWelcome(false)}
-          userData={userData}
-        />
+        <WelcomeScreen onStart={() => setShowWelcome(false)} userData={userData} />
       ) : (
         <motion.div
           key="chat"
@@ -62,16 +65,7 @@ export default function Home() {
               <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
                 <SheetTrigger asChild>
                   <button className="p-2 text-gray-500 hover:bg-gray-300 focus:outline-none transition-all duration-200 hover:scale-105 rounded-lg">
-                    <svg
-                      width="20"
-                      height="20"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      viewBox="0 0 24 24"
-                    >
+                    <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
                       <line x1="3" y1="12" x2="21" y2="12" />
                       <line x1="3" y1="6" x2="21" y2="6" />
                       <line x1="3" y1="18" x2="21" y2="18" />
@@ -83,37 +77,19 @@ export default function Home() {
                     conversations={conversations}
                     onNewChat={handleSidebarNewChat}
                     onSelectConversation={handleSidebarSelectConversation}
+                    loading={conversationsLoading}
+                    error={conversationsError}
                   />
                 </SheetContent>
               </Sheet>
 
-              <Image
-                src="/ia_face.png"
-                alt="Logo Asistente Clave"
-                width={50}
-                height={50}
-                className="object-cover object-top"
-              />
+              <Image src="/ia_face.png" alt="Logo Asistente Clave" width={50} height={50} className="object-cover object-top" />
 
-              <span className="font-bold text-2xl bg-gradient-to-r from-[#9379E3] via-[#5E70D2] to-[#3A4CB1] bg-clip-text text-transparent">
-                Asistente Clave
-              </span>
+              <span className="font-bold text-2xl bg-gradient-to-r from-[#9379E3] via-[#5E70D2] to-[#3A4CB1] bg-clip-text text-transparent">Asistente Clave</span>
             </div>
 
-            <button
-              onClick={toggleDrawer}
-              className="p-2 text-gray-500 hover:bg-gray-300 focus:outline-none transition-all duration-200 hover:scale-105 rounded-lg"
-            >
-              <svg
-                width="20"
-                height="20"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                viewBox="0 0 24 24"
-              >
+            <button onClick={toggleDrawer} className="p-2 text-gray-500 hover:bg-gray-300 focus:outline-none transition-all duration-200 hover:scale-105 rounded-lg">
+              <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
                 <line x1="18" y1="6" x2="6" y2="18" />
                 <line x1="6" y1="6" x2="18" y2="18" />
               </svg>
@@ -122,9 +98,11 @@ export default function Home() {
 
           <div className="flex-1 overflow-hidden">
             <ChatInterface
+              key={selectedConversationId || "new-chat"}
               userData={userData}
               isDataReceived={isDataReceived}
               sendMessageToParent={sendMessageToParent}
+              conversationId={selectedConversationId}
             />
           </div>
         </motion.div>

@@ -72,12 +72,16 @@ export interface ChatInterfaceProps {
   userData: UserData;
   isDataReceived: boolean;
   sendMessageToParent: (message: any) => void;
+  conversationId?: string | null;
 }
 
 export interface ConversationHistory {
   id: string;
-  text: string;
-  date: Date;
+  session_id: string;
+  title: string;
+  created_at: string;
+  updated_at: string;
+  message_count?: number;
 }
 
 // API related types

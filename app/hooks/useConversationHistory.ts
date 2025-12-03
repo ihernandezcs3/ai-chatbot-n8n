@@ -1,48 +1,62 @@
+import { useState, useEffect, useCallback } from "react";
 import { ConversationHistory } from "@/types";
+import { ConversationService } from "@/app/services/conversationService";
 
-export const useConversationHistory = () => {
-  // Mock data for conversation history
-  const conversations: ConversationHistory[] = [
-    {
-      id: "1",
-      text: "Hola, necesito ayuda con las facturas del mes pasado",
-      date: new Date(),
-    },
-    {
-      id: "2",
-      text: "¿Cuáles son los productos más vendidos este año?",
-      date: new Date(),
-    },
-    {
-      id: "3",
-      text: "Tengo un problema con el sistema de pagos",
-      date: new Date(Date.now() - 86400000), // Yesterday
-    },
-    {
-      id: "4",
-      text: "Me gustaría conocer más sobre los planes disponibles",
-      date: new Date(Date.now() - 86400000), // Yesterday
-    },
-    {
-      id: "5",
-      text: "Necesito configurar mi perfil de usuario",
-      date: new Date(Date.now() - 172800000), // 2 days ago
-    },
-  ];
+export const useConversationHistory = (userId?: string) => {
+  const [conversations, setConversations] = useState<ConversationHistory[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
 
-  const handleNewChat = () => {
-    // Logic to start a new conversation
+  // Load conversations when userId changes
+  useEffect(() => {
+    if (userId) {
+      loadConversations(userId);
+    } else {
+      setConversations([]);
+      setLoading(false);
+    }
+  }, [userId]);
+
+  const loadConversations = async (uid: string) => {
+    try {
+      setLoading(true);
+      setError(null);
+      const data = await ConversationService.getConversations(uid);
+      setConversations(data);
+    } catch (err) {
+      console.error("Error loading conversations:", err);
+      setError("No se pudieron cargar las conversaciones");
+      setConversations([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleNewChat = useCallback(() => {
+    // Clear selected conversation to start fresh
+    setSelectedConversationId(null);
     console.log("Nueva conversación iniciada");
-  };
+  }, []);
 
-  const handleSelectConversation = (conversationId: string, text: string) => {
-    // Logic to load a specific conversation
-    console.log(`Conversación seleccionada: ${text} (ID: ${conversationId})`);
-  };
+  const handleSelectConversation = useCallback((conversationId: string, title: string) => {
+    setSelectedConversationId(conversationId);
+    console.log(`Conversación seleccionada: ${title} (ID: ${conversationId})`);
+  }, []);
+
+  const refreshConversations = useCallback(() => {
+    if (userId) {
+      loadConversations(userId);
+    }
+  }, [userId]);
 
   return {
     conversations,
+    loading,
+    error,
+    selectedConversationId,
     handleNewChat,
     handleSelectConversation,
+    refreshConversations,
   };
 };

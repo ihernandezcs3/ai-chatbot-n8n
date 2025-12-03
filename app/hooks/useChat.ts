@@ -2,17 +2,66 @@ import { useState, useCallback, useEffect } from "react";
 import { Message, UseChatReturn, UserData, ComponentData } from "@/types";
 import { ChatService } from "@/app/services/chatService";
 import { AnalyticsService } from "@/app/services/analyticsService";
+import { ConversationService } from "@/app/services/conversationService";
 import { useMessages } from "./useMessages";
 
-export const useChat = (userData: UserData): UseChatReturn => {
+export const useChat = (userData: UserData, existingConversationId?: string | null): UseChatReturn => {
   const [isLoading, setIsLoading] = useState(false);
-  const [sessionId] = useState(() => ChatService.generateSessionId());
-  const { messages, addMessage } = useMessages();
+  const [sessionId, setSessionId] = useState<string>(() => ChatService.generateSessionId());
+  const [conversationId, setConversationId] = useState<string | null>(existingConversationId || null);
+  const { messages, addMessage, clearMessages } = useMessages();
 
   // Track session start
   useEffect(() => {
     AnalyticsService.trackChatSessionStart(sessionId);
   }, [sessionId]);
+
+  // Load existing conversation if provided
+  useEffect(() => {
+    if (existingConversationId && userData.CliCod) {
+      loadExistingConversation(existingConversationId);
+    } else if (existingConversationId === null && conversationId !== null) {
+      // User clicked "New Chat" - reset everything
+      clearMessages();
+      setConversationId(null);
+      const newSessionId = ChatService.generateSessionId();
+      setSessionId(newSessionId);
+      console.log("🆕 Started new conversation with sessionId:", newSessionId);
+    }
+  }, [existingConversationId]);
+
+  const loadExistingConversation = async (convId: string) => {
+    try {
+      setIsLoading(true);
+
+      // Get conversation details
+      const conversation = await ConversationService.getConversation(convId);
+      setSessionId(conversation.session_id);
+      setConversationId(conversation.id);
+
+      // Get messages
+      const { messages: conversationMessages } = await ConversationService.getConversationMessages(convId);
+
+      // Clear current messages and load from conversation
+      clearMessages();
+
+      conversationMessages.forEach((msg, idx) => {
+        const message: Message = {
+          id: `${convId}-${idx}`,
+          content: msg.content,
+          isUser: msg.type === "human",
+          timestamp: new Date(msg.timestamp),
+        };
+        addMessage(message);
+      });
+
+      console.log(`✅ Loaded conversation with ${conversationMessages.length} messages`);
+    } catch (error) {
+      console.error("❌ Error loading conversation:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const sendMessage = useCallback(
     async (content: string) => {
@@ -32,25 +81,28 @@ export const useChat = (userData: UserData): UseChatReturn => {
       addMessage(userMessage);
       setIsLoading(true);
 
+      // Create conversation on first message if not exists
+      if (!conversationId && userData.CliCod) {
+        try {
+          const title = content.trim().substring(0, 100);
+          const conversation = await ConversationService.createConversation(sessionId, userData.CliCod.toString(), title);
+          setConversationId(conversation.id);
+          console.log("✅ Conversation created:", conversation.id);
+        } catch (error) {
+          console.error("⚠️ Could not create conversation, continuing anyway:", error);
+        }
+      }
+
       try {
         // Send message to API
-        const response = await ChatService.sendMessage(
-          sessionId,
-          content,
-          userData
-        );
+        const response = await ChatService.sendMessage(sessionId, content, userData);
 
         // Check if response contains components
-        const hasComponents =
-          response.components && Array.isArray(response.components);
-        const messageContent = hasComponents
-          ? response.components
-          : response.output;
+        const hasComponents = response.components && Array.isArray(response.components);
+        const messageContent = hasComponents ? response.components : response.output;
 
         // Check if content contains markdown
-        const isMarkdown =
-          typeof messageContent === "string" &&
-          ChatService.containsMarkdown(messageContent);
+        const isMarkdown = typeof messageContent === "string" && ChatService.containsMarkdown(messageContent);
 
         // Create bot message
         const botMessage: Message = {
@@ -66,22 +118,12 @@ export const useChat = (userData: UserData): UseChatReturn => {
         addMessage(botMessage);
 
         // Track successful response
-        AnalyticsService.trackResponseReceived(
-          hasComponents || false,
-          isMarkdown || false,
-          typeof messageContent === "string"
-            ? messageContent.length
-            : "component",
-          sessionId
-        );
+        AnalyticsService.trackResponseReceived(hasComponents || false, isMarkdown || false, typeof messageContent === "string" ? messageContent.length : "component", sessionId);
       } catch (error) {
         console.error("Error sending message:", error);
 
         // Track error
-        AnalyticsService.trackError(
-          error instanceof Error ? error.message : "Unknown error",
-          sessionId
-        );
+        AnalyticsService.trackError(error instanceof Error ? error.message : "Unknown error", sessionId);
 
         // Add error message
         const errorMessage: Message = {

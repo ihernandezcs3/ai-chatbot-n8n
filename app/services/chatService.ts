@@ -22,8 +22,8 @@ export class ChatService {
       FirstName: tokenData?.FirstName,
       LastName: tokenData?.LastName,
       role: tokenData?.role,
-      // Domain from environment
-      domain: process.env.NEXT_PUBLIC_DOMAIN,
+      // Domain from current origin
+      domain: typeof window !== "undefined" ? window.location.origin : undefined,
     };
 
     const requestBody: ChatApiRequest = {

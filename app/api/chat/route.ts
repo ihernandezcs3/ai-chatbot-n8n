@@ -6,10 +6,7 @@ export async function POST(request: NextRequest) {
     const { sessionId, chatInput, metadata } = body;
 
     if (!sessionId || !chatInput) {
-      return NextResponse.json(
-        { error: "sessionId and chatInput are required" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "sessionId and chatInput are required" }, { status: 400 });
     }
 
     // n8n webhook configuration
@@ -40,9 +37,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (!response.ok) {
-      throw new Error(
-        `n8n webhook error: ${response.status} ${response.statusText}`
-      );
+      throw new Error(`n8n webhook error: ${response.status} ${response.statusText}`);
     }
 
     const data = await response.json();
@@ -52,10 +47,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(data);
   } catch (error) {
     console.error("❌ Error in chat API:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
 

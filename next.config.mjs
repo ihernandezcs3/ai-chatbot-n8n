@@ -3,6 +3,7 @@ const nextConfig = {
   env: {
     N8N_WEBHOOK_URL: process.env.N8N_WEBHOOK_URL,
     N8N_BEARER_TOKEN: process.env.N8N_BEARER_TOKEN,
+    NEXT_PUBLIC_DOMAIN: process.env.NEXT_PUBLIC_DOMAIN,
   },
   // Deshabilitar Vercel Analytics en desarrollo
   ...(process.env.NODE_ENV === "development" && {

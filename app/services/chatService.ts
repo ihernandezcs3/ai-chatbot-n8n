@@ -1,32 +1,18 @@
-import {
-  ChatApiRequest,
-  ChatApiResponse,
-  ChatMetadata,
-  UserData,
-} from "@/types";
+import { ChatApiRequest, ChatApiResponse, ChatMetadata, UserData } from "@/types";
 import { TokenService } from "./tokenService";
 
 export class ChatService {
   private static readonly API_ENDPOINT = "/api/chat";
 
-  static async sendMessage(
-    sessionId: string,
-    content: string,
-    userData: UserData
-  ): Promise<ChatApiResponse> {
+  static async sendMessage(sessionId: string, content: string, userData: UserData): Promise<ChatApiResponse> {
     // Extract data from token if available
     const tokenPayload = userData.tokenPayload;
-    const tokenData = tokenPayload
-      ? TokenService.extractUserDataFromToken(tokenPayload)
-      : null;
+    const tokenData = tokenPayload ? TokenService.extractUserDataFromToken(tokenPayload) : null;
 
     const metadata: ChatMetadata = {
       CliCod: userData?.CliCod || 20115,
       PrdCod: userData?.PrdCod || 4,
-      Email:
-        tokenData?.email ||
-        userData?.Email ||
-        "ihernandez@comercializadora-s3.com",
+      Email: tokenData?.email || userData?.Email || "ihernandez@comercializadora-s3.com",
       userName: tokenData?.userName || userData?.userName || "Usuario",
       timestamp: new Date().toISOString(),
       sessionId: sessionId,
@@ -36,6 +22,8 @@ export class ChatService {
       FirstName: tokenData?.FirstName,
       LastName: tokenData?.LastName,
       role: tokenData?.role,
+      // Domain from environment
+      domain: process.env.NEXT_PUBLIC_DOMAIN,
     };
 
     const requestBody: ChatApiRequest = {

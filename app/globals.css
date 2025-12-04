@@ -52,16 +52,7 @@
   }
 
   .animate-text-shimmer {
-    background: linear-gradient(
-      90deg,
-      #9379e3 0%,
-      #b18fe8 20%,
-      #7b8cd7 40%,
-      #5a6bc4 60%,
-      #3a4cb1 80%,
-      #5a6bc4 90%,
-      #9379e3 100%
-    );
+    background: linear-gradient(90deg, #9379e3 0%, #b18fe8 20%, #7b8cd7 40%, #5a6bc4 60%, #3a4cb1 80%, #5a6bc4 90%, #9379e3 100%);
     background-size: 400% 100%;
     animation: text-shimmer 18s linear infinite;
     -webkit-background-clip: text;
@@ -237,13 +228,7 @@ body {
   left: 0;
   right: 0;
   bottom: 0;
-  background: radial-gradient(
-    circle,
-    rgba(228, 228, 228, 0.274) 0%,
-    rgba(172, 172, 172, 0.356) 30%,
-    rgba(255, 255, 255, 0.137) 60%,
-    transparent 100%
-  );
+  background: radial-gradient(circle, rgba(228, 228, 228, 0.274) 0%, rgba(172, 172, 172, 0.356) 30%, rgba(255, 255, 255, 0.137) 60%, transparent 100%);
   background-size: 300% 300%;
   border-radius: inherit;
   animation: silver-shimmer 1s ease-in forwards;

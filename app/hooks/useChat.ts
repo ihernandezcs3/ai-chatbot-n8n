@@ -5,9 +5,10 @@ import { AnalyticsService } from "@/app/services/analyticsService";
 import { ConversationService } from "@/app/services/conversationService";
 import { useMessages } from "./useMessages";
 
-export const useChat = (userData: UserData, existingConversationId?: string | null, onConversationCreated?: () => void): UseChatReturn => {
+export const useChat = (userData: UserData, existingConversationId?: string | null, onConversationCreated?: () => void, initialSessionId?: string): UseChatReturn => {
   const [isLoading, setIsLoading] = useState(false);
-  const [sessionId, setSessionId] = useState<string>(() => ChatService.generateSessionId());
+  // Usar el sessionId inicial si se proporciona (modo standalone)
+  const [sessionId, setSessionId] = useState<string>(() => initialSessionId || ChatService.generateSessionId());
   const [conversationId, setConversationId] = useState<string | null>(existingConversationId || null);
   const { messages, addMessage, clearMessages } = useMessages();
 
@@ -28,7 +29,7 @@ export const useChat = (userData: UserData, existingConversationId?: string | nu
       setSessionId(newSessionId);
       console.log("🆕 Started new conversation with sessionId:", newSessionId);
     }
-  }, [existingConversationId]);
+  }, [existingConversationId, userData.IdUser]);
 
   const loadExistingConversation = async (convId: string) => {
     try {

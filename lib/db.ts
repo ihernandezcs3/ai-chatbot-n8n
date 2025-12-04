@@ -1,5 +1,10 @@
 import { Pool, PoolClient, QueryResult } from "pg";
 
+// Global type for caching the pool in development
+declare global {
+  var postgresPool: Pool | undefined;
+}
+
 // Singleton pool instance
 let pool: Pool | null = null;
 
@@ -7,6 +12,13 @@ let pool: Pool | null = null;
  * Get or create PostgreSQL connection pool
  */
 export function getPool(): Pool {
+  // In development, use global variable to prevent multiple pools during HMR
+  if (process.env.NODE_ENV === "development") {
+    if (global.postgresPool) {
+      return global.postgresPool;
+    }
+  }
+
   if (!pool) {
     const connectionString = process.env.DATABASE_URL;
 
@@ -27,10 +39,16 @@ export function getPool(): Pool {
     // Handle pool errors
     pool.on("error", (err) => {
       console.error("Unexpected error on idle PostgreSQL client", err);
-      process.exit(-1);
+      // Don't exit process on idle client error, just log it
+      // process.exit(-1);
     });
 
     console.log("✅ PostgreSQL connection pool created");
+
+    // Cache in global for development
+    if (process.env.NODE_ENV === "development") {
+      global.postgresPool = pool;
+    }
   }
 
   return pool;
@@ -73,9 +91,14 @@ export async function getClient(): Promise<PoolClient> {
  * Close the pool (typically only needed for graceful shutdown)
  */
 export async function closePool(): Promise<void> {
-  if (pool) {
-    await pool.end();
+  const currentPool = process.env.NODE_ENV === "development" ? global.postgresPool : pool;
+
+  if (currentPool) {
+    await currentPool.end();
     pool = null;
+    if (process.env.NODE_ENV === "development") {
+      global.postgresPool = undefined;
+    }
     console.log("✅ PostgreSQL connection pool closed");
   }
 }

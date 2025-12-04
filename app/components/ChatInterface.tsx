@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { ChatInterfaceProps } from "@/types";
 import { useChat } from "@/app/hooks/useChat";
 import MessagesList from "./ui/MessagesList";
@@ -7,8 +8,28 @@ import ChatInput from "./ui/ChatInput";
 import Suggestions from "./Suggestions";
 import { useSuggestions } from "@/app/hooks/useSuggestions";
 
-export default function ChatInterface({ userData, isDataReceived, sendMessageToParent, conversationId = null, onConversationCreated }: ChatInterfaceProps) {
-  const { messages, sendMessage, isLoading, sessionId } = useChat(userData, conversationId, onConversationCreated);
+interface ExtendedChatInterfaceProps extends ChatInterfaceProps {
+  initialSessionId?: string;
+  onSessionIdChange?: (sessionId: string) => void;
+}
+
+export default function ChatInterface({
+  userData,
+  isDataReceived,
+  sendMessageToParent,
+  conversationId = null,
+  onConversationCreated,
+  initialSessionId,
+  onSessionIdChange,
+}: ExtendedChatInterfaceProps) {
+  const { messages, sendMessage, isLoading, sessionId } = useChat(userData, conversationId, onConversationCreated, initialSessionId);
+
+  // Notificar al padre cuando cambie el sessionId
+  useEffect(() => {
+    if (onSessionIdChange && sessionId) {
+      onSessionIdChange(sessionId);
+    }
+  }, [sessionId, onSessionIdChange]);
 
   // Hook único para las sugerencias en esta sesión
   const { suggestions, isConnected: suggestionsConnected, error: suggestionsError, clearSuggestions } = useSuggestions(sessionId);

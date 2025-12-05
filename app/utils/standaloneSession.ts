@@ -5,7 +5,6 @@ interface StandaloneData {
   PrdCod: number;
   token: string;
   IdUser?: string;
-  tokenPayload?: any;
   sessionId?: string;
 }
 
@@ -19,7 +18,6 @@ export const encodeUserDataForUrl = (userData: UserData, sessionId?: string): st
       PrdCod: userData.PrdCod,
       token: userData.token,
       IdUser: userData.IdUser,
-      tokenPayload: userData.tokenPayload,
       sessionId,
     };
     const jsonString = JSON.stringify(essentialData);
@@ -47,17 +45,14 @@ export const decodeUserDataFromUrl = (encoded: string): StandaloneData | null =>
 
 /**
  * Genera la URL para abrir el chat en nueva pestaña
- * Formato: /standalone/[conversationId]?data=... o /standalone?data=...
  */
 export const getStandaloneUrl = (userData: UserData, sessionId?: string, conversationId?: string, baseUrl?: string): string => {
   const encodedData = encodeUserDataForUrl(userData, sessionId);
   const base = baseUrl || window.location.origin;
 
   if (conversationId) {
-    // URL con conversación específica: /standalone/abc123?data=...
     return `${base}/standalone/${conversationId}?data=${encodedData}`;
   }
-  // Nueva conversación: /standalone?data=...
   return `${base}/standalone?data=${encodedData}`;
 };
 

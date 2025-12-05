@@ -14,7 +14,7 @@ export default function StandalonePage() {
     router.push(`/standalone/${id}`);
   };
 
-  const displayName = userData?.tokenPayload ? TokenService.getUserDisplayName(userData.tokenPayload) : "Usuario";
+  const displayName = userData?.FirstName ? `${userData.FirstName} ${userData.LastName || ""}`.trim() : "Usuario";
 
   // Mostrar loading mientras no tengamos datos
   if (!isDataReceived) {
@@ -74,7 +74,7 @@ export default function StandalonePage() {
             </div>
             <div className="flex-1 min-w-0">
               <div className="text-sm font-medium text-gray-900 truncate">{displayName}</div>
-              <div className="text-xs text-gray-500 truncate">{userData?.tokenPayload?.email || ""}</div>
+              <div className="text-xs text-gray-500 truncate">{userData?.email || ""}</div>
             </div>
           </div>
         </div>

@@ -45,7 +45,7 @@ export default function Home() {
   };
 
   const handleOpenInNewTab = () => {
-    if (isDataReceived && currentSessionId) {
+    if (isDataReceived && currentSessionId && userData) {
       openChatInNewTab(userData, currentSessionId, selectedConversationId || undefined);
     }
   };
@@ -57,7 +57,7 @@ export default function Home() {
   return (
     <AnimatePresence mode="wait">
       {showWelcome ? (
-        <WelcomeScreen onStart={() => setShowWelcome(false)} userData={userData} />
+        <WelcomeScreen onStart={() => setShowWelcome(false)} userData={userData ?? undefined} />
       ) : (
         <motion.div
           key="chat"

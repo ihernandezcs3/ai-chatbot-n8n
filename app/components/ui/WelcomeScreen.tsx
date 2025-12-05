@@ -11,8 +11,7 @@ interface WelcomeScreenProps {
 }
 
 export default function WelcomeScreen({ onStart, userData }: WelcomeScreenProps) {
-  // Extract user name from token if available
-  const displayName = userData?.tokenPayload ? TokenService.getUserDisplayName(userData.tokenPayload) : "";
+  const displayName = userData?.FirstName || "";
   return (
     <motion.div
       key="welcome"

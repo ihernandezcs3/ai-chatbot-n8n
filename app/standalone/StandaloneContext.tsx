@@ -17,15 +17,6 @@ interface StandaloneContextType {
 
 const StandaloneContext = createContext<StandaloneContextType | null>(null);
 
-const defaultUserData: UserData = {
-  CliCod: 0,
-  PrdCod: 0,
-  Email: "",
-  userName: "",
-  token: "",
-  iframeWidth: 600,
-};
-
 export function StandaloneProvider({ children }: { children: ReactNode }) {
   const [userData, setUserData] = useState<UserData | null>(null);
   const [isDataReceived, setIsDataReceived] = useState(false);
@@ -41,14 +32,26 @@ export function StandaloneProvider({ children }: { children: ReactNode }) {
     const urlData = getDataFromUrl();
     if (urlData) {
       console.log("StandaloneProvider: Datos cargados de URL:", urlData);
+
+      // Decodificar token para obtener los datos del usuario
+      const tokenPayload = TokenService.decodeToken(urlData.token);
+
       const newUserData: UserData = {
-        ...defaultUserData,
         CliCod: urlData.CliCod,
         PrdCod: urlData.PrdCod,
         token: urlData.token,
-        IdUser: urlData.IdUser,
-        tokenPayload: urlData.tokenPayload,
+        IdUser: tokenPayload?.IdUser || urlData.IdUser,
+        unique_name: tokenPayload?.unique_name,
+        Document: tokenPayload?.Document,
+        FirstName: tokenPayload?.FirstName,
+        LastName: tokenPayload?.LastName,
+        email: tokenPayload?.email,
+        role: tokenPayload?.role,
+        nbf: tokenPayload?.nbf,
+        exp: tokenPayload?.exp,
+        iat: tokenPayload?.iat,
       };
+
       setUserData(newUserData);
       setIsDataReceived(true);
 

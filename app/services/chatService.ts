@@ -5,25 +5,25 @@ export class ChatService {
   private static readonly API_ENDPOINT = "/api/chat";
 
   static async sendMessage(sessionId: string, content: string, userData: UserData): Promise<ChatApiResponse> {
-    // Extract data from token if available
-    const tokenPayload = userData.tokenPayload;
-    const tokenData = tokenPayload ? TokenService.extractUserDataFromToken(tokenPayload) : null;
-
     const metadata: ChatMetadata = {
-      CliCod: userData?.CliCod || 20115,
-      PrdCod: userData?.PrdCod || 4,
-      Email: tokenData?.email || userData?.Email || "ihernandez@comercializadora-s3.com",
-      userName: tokenData?.userName || userData?.userName || "Usuario",
+      // Datos del iframe
+      CliCod: userData.CliCod,
+      PrdCod: userData.PrdCod,
+      // Datos de la sesión
       timestamp: new Date().toISOString(),
       sessionId: sessionId,
-      // Add new fields from token
-      IdUser: tokenData?.IdUser,
-      Document: tokenData?.Document,
-      FirstName: tokenData?.FirstName,
-      LastName: tokenData?.LastName,
-      role: tokenData?.role,
-      // Domain from current origin
       domain: typeof window !== "undefined" ? window.location.origin : undefined,
+      // Datos del JWT (exactamente como vienen)
+      IdUser: userData.IdUser,
+      unique_name: userData.unique_name,
+      Document: userData.Document,
+      FirstName: userData.FirstName,
+      LastName: userData.LastName,
+      email: userData.email,
+      role: userData.role,
+      nbf: userData.nbf,
+      exp: userData.exp,
+      iat: userData.iat,
     };
 
     const requestBody: ChatApiRequest = {

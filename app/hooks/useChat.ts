@@ -5,7 +5,7 @@ import { AnalyticsService } from "@/app/services/analyticsService";
 import { ConversationService } from "@/app/services/conversationService";
 import { useMessages } from "./useMessages";
 
-export const useChat = (userData: UserData, existingConversationId?: string | null, onConversationCreated?: () => void, initialSessionId?: string): UseChatReturn => {
+export const useChat = (userData: UserData | null, existingConversationId?: string | null, onConversationCreated?: () => void, initialSessionId?: string): UseChatReturn => {
   const [isLoading, setIsLoading] = useState(false);
   // Usar el sessionId inicial si se proporciona (modo standalone)
   const [sessionId, setSessionId] = useState<string>(() => initialSessionId || ChatService.generateSessionId());
@@ -19,7 +19,7 @@ export const useChat = (userData: UserData, existingConversationId?: string | nu
 
   // Load existing conversation if provided
   useEffect(() => {
-    if (existingConversationId && userData.IdUser) {
+    if (existingConversationId && userData?.IdUser) {
       loadExistingConversation(existingConversationId);
     } else if (existingConversationId === null && conversationId !== null) {
       // User clicked "New Chat" - reset everything
@@ -29,7 +29,7 @@ export const useChat = (userData: UserData, existingConversationId?: string | nu
       setSessionId(newSessionId);
       console.log("🆕 Started new conversation with sessionId:", newSessionId);
     }
-  }, [existingConversationId, userData.IdUser]);
+  }, [existingConversationId, userData?.IdUser]);
 
   const loadExistingConversation = async (convId: string) => {
     try {
@@ -83,7 +83,7 @@ export const useChat = (userData: UserData, existingConversationId?: string | nu
       setIsLoading(true);
 
       // Create conversation on first message if not exists
-      if (!conversationId && userData.IdUser) {
+      if (!conversationId && userData?.IdUser) {
         try {
           const title = content.trim().substring(0, 100);
           const conversation = await ConversationService.createConversation(sessionId, userData.IdUser, title);
@@ -97,6 +97,9 @@ export const useChat = (userData: UserData, existingConversationId?: string | nu
 
       try {
         // Send message to API
+        if (!userData) {
+          throw new Error("No hay datos de usuario disponibles");
+        }
         const response = await ChatService.sendMessage(sessionId, content, userData);
 
         // Check if response contains components

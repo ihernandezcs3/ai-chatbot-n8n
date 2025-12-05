@@ -24,32 +24,42 @@ export interface JWTPayload {
 }
 
 export interface UserData {
+  // Datos del iframe
   CliCod: number;
   PrdCod: number;
-  Email: string;
-  userName: string;
   token: string;
-  iframeWidth?: number;
-  // New fields from JWT
-  tokenPayload?: JWTPayload;
-  IdUser?: string; // Added for conversation management
-}
-
-export interface ChatMetadata {
-  CliCod: number;
-  PrdCod: number;
-  Email: string;
-  userName: string;
-  timestamp: string;
-  sessionId: string;
-  // New fields from JWT token
+  // Datos del JWT (exactamente como vienen)
   IdUser?: string;
+  unique_name?: string;
   Document?: string;
   FirstName?: string;
   LastName?: string;
+  email?: string;
   role?: string;
-  // Domain from environment
+  nbf?: number;
+  exp?: number;
+  iat?: number;
+}
+
+export interface ChatMetadata {
+  // Datos del iframe
+  CliCod: number;
+  PrdCod: number;
+  // Datos de la sesión
+  timestamp: string;
+  sessionId: string;
   domain?: string;
+  // Datos del JWT (exactamente como vienen)
+  IdUser?: string;
+  unique_name?: string;
+  Document?: string;
+  FirstName?: string;
+  LastName?: string;
+  email?: string;
+  role?: string;
+  nbf?: number;
+  exp?: number;
+  iat?: number;
 }
 
 // Component related types
@@ -70,7 +80,7 @@ export interface AnalyticsEvent {
 
 // UI related types
 export interface ChatInterfaceProps {
-  userData: UserData;
+  userData: UserData | null;
   isDataReceived: boolean;
   sendMessageToParent: (message: any) => void;
   conversationId?: string | null;

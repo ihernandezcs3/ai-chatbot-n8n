@@ -21,7 +21,7 @@ export default function StandaloneConversationPage() {
     router.push(`/standalone/${id}`);
   };
 
-  const displayName = userData?.tokenPayload ? TokenService.getUserDisplayName(userData.tokenPayload) : "Usuario";
+  const displayName = userData?.FirstName ? `${userData.FirstName} ${userData.LastName || ""}`.trim() : "Usuario";
 
   const currentTitle = conversations.find((c) => c.id === conversationId)?.title || "Conversación";
 
@@ -88,7 +88,7 @@ export default function StandaloneConversationPage() {
             </div>
             <div className="flex-1 min-w-0">
               <div className="text-sm font-medium text-gray-900 truncate">{displayName}</div>
-              <div className="text-xs text-gray-500 truncate">{userData?.tokenPayload?.email || ""}</div>
+              <div className="text-xs text-gray-500 truncate">{userData?.email || ""}</div>
             </div>
           </div>
         </div>

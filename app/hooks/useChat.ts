@@ -47,11 +47,15 @@ export const useChat = (userData: UserData | null, existingConversationId?: stri
       clearMessages();
 
       conversationMessages.forEach((msg, idx) => {
+        // Check if content contains markdown (only for AI messages)
+        const isMarkdown = msg.type !== "human" && typeof msg.content === "string" && ChatService.containsMarkdown(msg.content);
+
         const message: Message = {
           id: `${convId}-${idx}`,
           content: msg.content,
           isUser: msg.type === "human",
           timestamp: new Date(msg.timestamp),
+          isMarkdown,
         };
         addMessage(message);
       });

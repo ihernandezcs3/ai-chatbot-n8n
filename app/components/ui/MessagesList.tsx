@@ -12,10 +12,22 @@ interface MessagesListProps {
   isLoading: boolean;
   children?: React.ReactNode;
   extraDeps?: any[];
+  sessionId?: string;
+  userId?: string;
 }
 
-export default function MessagesList({ messages, isLoading, children, extraDeps = [] }: MessagesListProps) {
+export default function MessagesList({ messages, isLoading, children, extraDeps = [], sessionId, userId }: MessagesListProps) {
   const { elementRef } = useScrollToBottom([messages, isLoading, ...extraDeps]);
+
+  // Find the previous user message for each AI message
+  const getPreviousUserQuestion = (index: number): string | undefined => {
+    for (let i = index - 1; i >= 0; i--) {
+      if (messages[i].isUser && typeof messages[i].content === "string") {
+        return messages[i].content as string;
+      }
+    }
+    return undefined;
+  };
 
   return (
     <div className="flex-1 overflow-y-auto p-3 sm:p-6 space-y-3 sm:space-y-4 custom-scrollbar px-10">
@@ -29,8 +41,8 @@ export default function MessagesList({ messages, isLoading, children, extraDeps 
         </div>
       )}
 
-      {messages.map((message) => (
-        <MessageBubble key={message.id} message={message} />
+      {messages.map((message, index) => (
+        <MessageBubble key={message.id} message={message} sessionId={sessionId} userId={userId} userQuestion={getPreviousUserQuestion(index)} />
       ))}
 
       {/* Sugerencias o cualquier contenido adicional */}

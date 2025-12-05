@@ -138,3 +138,38 @@ export interface TokenInfo {
 
 // Suggestion types
 export * from "./Suggestion";
+
+// Rating System types
+export interface RatingData {
+  sessionId: string;
+  messageId: string;
+  userId: string;
+  rating: "positive" | "negative";
+  feedbackText?: string;
+  messageContent?: string;
+  userQuestion?: string;
+}
+
+export interface RatingResponse {
+  id: string;
+  session_id: string;
+  message_id: string;
+  user_id: string;
+  rating: "positive" | "negative";
+  feedback_text?: string;
+  message_content?: string;
+  user_question?: string;
+  created_at: string;
+}
+
+export interface DashboardStats {
+  totalRatings: number;
+  positiveRatings: number;
+  negativeRatings: number;
+  satisfactionRate: number;
+  totalConversations: number;
+  avgRatingsPerConversation: number;
+  ratingsByDay: { date: string; positive: number; negative: number }[];
+  recentRatings: RatingResponse[];
+  topNegativeQuestions: { question: string; count: number }[];
+}

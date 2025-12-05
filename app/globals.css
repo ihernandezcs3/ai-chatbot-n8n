@@ -363,6 +363,44 @@ body {
 .voice-wave-bar:nth-child(5) { animation-delay: 0.2s; }
 .voice-wave-bar:nth-child(6) { animation-delay: 0.1s; }
 
+/* Rating Button Styles */
+.rating-button {
+  @apply p-1.5 rounded-lg transition-all duration-200 ease-out;
+}
+
+.rating-button-inactive {
+  @apply text-gray-400 hover:text-gray-600 hover:bg-gray-100;
+}
+
+.rating-button-active-positive {
+  @apply text-green-600 bg-green-50 cursor-default;
+}
+
+.rating-button-active-negative {
+  @apply text-red-500 bg-red-50 cursor-default;
+}
+
+.rating-button:disabled {
+  @apply opacity-50 cursor-not-allowed;
+}
+
+/* Dashboard Styles */
+.dashboard-card {
+  @apply bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow duration-200;
+}
+
+.dashboard-stat {
+  @apply text-3xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent;
+}
+
+.dashboard-trend-positive {
+  @apply text-green-600 bg-green-50 px-2 py-0.5 rounded-full text-xs font-medium;
+}
+
+.dashboard-trend-negative {
+  @apply text-red-500 bg-red-50 px-2 py-0.5 rounded-full text-xs font-medium;
+}
+
 @layer base {
   * {
     @apply border-border;

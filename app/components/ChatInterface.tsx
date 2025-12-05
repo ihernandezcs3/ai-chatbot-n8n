@@ -49,7 +49,7 @@ export default function ChatInterface({
 
   return (
     <div className="flex flex-col h-full w-full">
-      <MessagesList messages={messages} isLoading={isLoading} extraDeps={[suggestions]}>
+      <MessagesList messages={messages} isLoading={isLoading} extraDeps={[suggestions]} sessionId={sessionId} userId={userData?.IdUser}>
         {hasAIResponses && suggestions.length > 0 && (
           <Suggestions suggestions={suggestions} onSuggestionSelect={handleSuggestionSelect} isConnected={suggestionsConnected} error={suggestionsError} />
         )}

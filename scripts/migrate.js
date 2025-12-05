@@ -1,9 +1,9 @@
 /**
  * Database Migration Runner
- * Executes SQL migration scripts to set up the conversations table
+ * Executes SQL migration scripts to set up database tables
+ * Usage: npm run migrate [migration_file]
  */
 
-// Load environment variables from .env file
 require("dotenv").config();
 
 const { Pool } = require("pg");
@@ -11,7 +11,6 @@ const fs = require("fs");
 const path = require("path");
 
 async function runMigration() {
-  // Get database URL from environment
   const connectionString = process.env.DATABASE_URL;
 
   if (!connectionString) {
@@ -20,62 +19,66 @@ async function runMigration() {
     process.exit(1);
   }
 
-  // Create database connection
+  // Get migration file from command line args or use default
+  const migrationArg = process.argv[2];
+  const migrationsDir = path.join(__dirname, "..", "migrations");
+
+  let migrationFiles = [];
+
+  if (migrationArg) {
+    // Run specific migration
+    const filePath = path.join(migrationsDir, migrationArg);
+    if (!fs.existsSync(filePath)) {
+      console.error(`❌ Migration file not found: ${migrationArg}`);
+      process.exit(1);
+    }
+    migrationFiles = [migrationArg];
+  } else {
+    // Run all migrations in order
+    migrationFiles = fs
+      .readdirSync(migrationsDir)
+      .filter((f) => f.endsWith(".sql"))
+      .sort();
+  }
+
   const pool = new Pool({
     connectionString,
-    ssl: {
-      rejectUnauthorized: false, // Required for Supabase
-    },
+    ssl: { rejectUnauthorized: false },
   });
 
   try {
     console.log("🔌 Connecting to database...");
-
-    // Test connection
     const testResult = await pool.query("SELECT NOW()");
     console.log("✅ Database connection successful");
-    console.log(`   Server time: ${testResult.rows[0].now}`);
+    console.log(`   Server time: ${testResult.rows[0].now}\n`);
 
-    // Read migration file
-    const migrationPath = path.join(__dirname, "..", "migrations", "001_create_conversations.sql");
-    console.log(`\n📄 Reading migration file: ${migrationPath}`);
+    for (const file of migrationFiles) {
+      const migrationPath = path.join(migrationsDir, file);
+      console.log(`📄 Running migration: ${file}`);
 
-    const migrationSQL = fs.readFileSync(migrationPath, "utf8");
+      const migrationSQL = fs.readFileSync(migrationPath, "utf8");
+      await pool.query(migrationSQL);
 
-    console.log("⚙️  Executing migration...\n");
+      console.log(`✅ ${file} completed\n`);
+    }
 
-    // Execute migration
-    await pool.query(migrationSQL);
+    console.log("🎉 All migrations completed successfully!");
 
-    console.log("✅ Migration completed successfully!");
-    console.log("\n📊 Verifying table creation...");
-
-    // Verify table exists
-    const verifyResult = await pool.query(`
-      SELECT table_name, column_name, data_type 
-      FROM information_schema.columns 
-      WHERE table_name = 'conversations'
-      ORDER BY ordinal_position
+    // Verify tables
+    const tables = await pool.query(`
+      SELECT table_name FROM information_schema.tables 
+      WHERE table_schema = 'public' 
+      AND table_type = 'BASE TABLE'
+      ORDER BY table_name
     `);
 
-    if (verifyResult.rows.length > 0) {
-      console.log("✅ Conversations table created with columns:");
-      verifyResult.rows.forEach((row) => {
-        console.log(`   - ${row.column_name} (${row.data_type})`);
-      });
-    } else {
-      console.log("⚠️  Warning: Could not verify table creation");
-    }
-
-    console.log("\n🎉 Database setup complete!");
+    console.log("\n📊 Current tables:");
+    tables.rows.forEach((row) => console.log(`   - ${row.table_name}`));
   } catch (error) {
-    console.error("\n❌ Migration failed:");
-    console.error(error.message);
-
+    console.error("\n❌ Migration failed:", error.message);
     if (error.code === "42P07") {
-      console.log("\n💡 Note: Table already exists. This is normal if you've run the migration before.");
+      console.log("💡 Note: Table already exists.");
     }
-
     process.exit(1);
   } finally {
     await pool.end();
@@ -83,6 +86,5 @@ async function runMigration() {
   }
 }
 
-// Run migration
 console.log("🚀 Starting database migration...\n");
 runMigration();
